@@ -2,16 +2,16 @@ import asyncio, ssl, certifi, logging, os
 import aiomqtt
 
 logging.basicConfig(
-    format='%(asctime)s - - %(levelname)s:%(message)s',
+    format='%(asctime)s - %(funcName)s - %(levelname)s: %(message)s',
     level=logging.INFO,
     datefmt='%d/%m/%Y %H:%M:%S %z'
 )
 
 async def atender_topico_1(contenido):
-    logging.info(f"Tópico 1: {contenido}")
+    logging.info(f"Mensjae en Topico_1: {contenido}")
 
 async def atender_topico_2(contenido):
-    logging.info(f"Tópico 2: {contenido}")
+    logging.info(f"Mensjae en Topico_2: {contenido}")
 
 async def main():
     # Obtener variables de entorno
@@ -36,15 +36,13 @@ async def main():
         async for message in client.messages:
             contenido = message.payload.decode("utf-8") 
 
-            if message.topic == topico_1:
+            if str(message.topic) == topico_1:
                 asyncio.create_task(
-                    atender_topico_1(contenido), 
-                    name="Tarea-Suscripcion-1"
+                    atender_topico_1(contenido)
                 )
-            elif message.topic == topico_2:
+            elif str(message.topic) == topico_2:
                 asyncio.create_task(
-                    atender_topico_2(contenido), 
-                    name="Tarea-Suscripcion-2"
+                    atender_topico_2(contenido)
                 )
 
 if __name__ == "__main__":
