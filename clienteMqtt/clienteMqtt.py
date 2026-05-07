@@ -17,7 +17,7 @@ async def incrementar_contador(contador):
     """Suma 1 cada 3 segundos"""
     while True:
         await asyncio.sleep(3)
-        contador[0] += 1 # Modificamos el interior de la lista
+        contador[0] += 1 # Modifica el interior de la lista
         logging.info(f"Contador incrementado a: {contador[0]}")
 
 async def publicar_contador(client, contador, topico):
