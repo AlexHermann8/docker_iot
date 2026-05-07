@@ -8,10 +8,10 @@ logging.basicConfig(
 )
 
 async def atender_topico_1(contenido):
-    logging.info(f"Mensjae en Topico_1: {contenido}")
+    logging.info(f"Mensaje en Topico_1: {contenido}")
 
 async def atender_topico_2(contenido):
-    logging.info(f"Mensjae en Topico_2: {contenido}")
+    logging.info(f"Mensaje en Topico_2: {contenido}")
 
 async def incrementar_contador(contador):
     """Suma 1 cada 3 segundos"""
