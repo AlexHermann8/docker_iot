@@ -13,12 +13,30 @@ async def atender_topico_1(contenido):
 async def atender_topico_2(contenido):
     logging.info(f"Mensjae en Topico_2: {contenido}")
 
+async def incrementar_contador(contador):
+    """Suma 1 cada 3 segundos"""
+    while True:
+        await asyncio.sleep(3)
+        contador[0] += 1 # Modificamos el interior de la lista
+        logging.info(f"Contador incrementado a: {contador[0]}")
+
+async def publicar_contador(client, contador, topico):
+    """Publica el contador cada 5 segundos"""
+    while True:
+        await asyncio.sleep(5)
+        valor = str(contador[0])
+        await client.publish(topico, payload=valor)
+        logging.info(f"Publicado {valor} en {topico}")
+
 async def main():
     # Obtener variables de entorno
     servidor = os.environ.get('SERVIDOR')
     topico_1 = os.environ.get('TOPICO_1')
     topico_2 = os.environ.get('TOPICO_2')
     topico_publicar = os.environ.get('TOPICO_PUBLICAR')
+
+    # Contador
+    contador = [0] # Lista para permitir la modificación dentro de las tareas
 
     # Configuración MQTTS
     tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
@@ -28,6 +46,10 @@ async def main():
 
     #Unico cliente MQTT
     async with aiomqtt.Client(servidor, port=8883, tls_context=tls_context) as client:
+
+        # Iniciar tareas
+        asyncio.create_task(incrementar_contador(contador), name="Tarea-Contador")
+        asyncio.create_task(publicar_contador(client, contador, topico_publicar), name="Tarea-Publicar-Contador")
 
         # Suscribirse a los tópicos
         await client.subscribe(topico_1)
