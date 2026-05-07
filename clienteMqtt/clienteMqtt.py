@@ -59,15 +59,9 @@ async def main():
             contenido = message.payload.decode("utf-8") 
 
             if str(message.topic) == topico_1:
-                asyncio.create_task(
-                    atender_topico_1(contenido),
-                    name="Tarea-Suscripcion-1"
-                )
+                asyncio.create_task(atender_topico_1(contenido), name="Tarea-Suscripcion-1")
             elif str(message.topic) == topico_2:
-                asyncio.create_task(
-                    atender_topico_2(contenido),
-                    name="Tarea-Suscripcion-2"
-                )
+                asyncio.create_task(atender_topico_2(contenido), name="Tarea-Suscripcion-2")
 
 if __name__ == "__main__":
     try:
