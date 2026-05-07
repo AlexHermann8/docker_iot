@@ -2,7 +2,7 @@ import asyncio, ssl, certifi, logging, os
 import aiomqtt
 
 logging.basicConfig(
-    format='%(asctime)s - %(funcName)s - %(levelname)s: %(message)s',
+    format='%(asctime)s - %(taskName)s - %(levelname)s: %(message)s',
     level=logging.INFO,
     datefmt='%d/%m/%Y %H:%M:%S %z'
 )
@@ -38,11 +38,13 @@ async def main():
 
             if str(message.topic) == topico_1:
                 asyncio.create_task(
-                    atender_topico_1(contenido)
+                    atender_topico_1(contenido),
+                    name="Tarea-Suscripcion-1"
                 )
             elif str(message.topic) == topico_2:
                 asyncio.create_task(
-                    atender_topico_2(contenido)
+                    atender_topico_2(contenido),
+                    name="Tarea-Suscripcion-2"
                 )
 
 if __name__ == "__main__":
