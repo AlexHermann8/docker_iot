@@ -27,12 +27,12 @@ async def acercade(update: Update, context):
 
 async def kill(update: Update, context):
     logging.info(context.args)
-    if context.args and context.args[0] == '@e':
-        await context.bot.send_animation(update.message.chat.id, "CgACAgEAAxkBAAICI2oYKdAqh4YkBCLifiVJZlRXy74-AAKUBwACZ_PBRLgV_qZf-9kGOwQ")
+    if context.args and context.args[0] == '@baile':
+        await context.bot.send_animation(update.message.chat.id, "CgACAgQAAxkBAAMHahiDeEYT2bwwLaOI9QVooA-adRcAAs0GAAK6K4RSN3xbqs1Aooo7BA")
         await asyncio.sleep(6)
-        await context.bot.send_message(update.message.chat.id, text="¡¡¡Ahora estan todos muertos!!!")
+        await context.bot.send_message(update.message.chat.id, text="¡Patito feliz!")
     else:
-        await context.bot.send_message(update.message.chat.id, text="☠️ ¡¡¡Esto es muy peligroso!!! ☠️")
+        await context.bot.send_message(update.message.chat.id, text="¡No puede bailar!")
         
 async def medicion(update: Update, context):
     logging.info(update.message.text)
