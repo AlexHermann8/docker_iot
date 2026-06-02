@@ -3,11 +3,38 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 import logging, os, asyncio, aiomysql, traceback, locale
 import matplotlib.pyplot as plt
 from io import BytesIO
+import aiomqtt, ssl
 
+# Configuracion de bot, servidor MQTT e id_dispositivo
 token=os.environ["TB_TOKEN"]
+servidor = os.environ['SERVIDOR']
+ID_DISPOSITIVO = "1324"
 
 logging.basicConfig(format='%(asctime)s - TelegramBot - %(levelname)s - %(message)s', level=logging.INFO)
 logging.getLogger("httpx").setLevel(logging.WARNING)
+
+# Función para la conexión y publicación en MQTT
+async def publicar_mqtt(topico, payload):
+
+     # Configuración MQTTS
+    tls_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    tls_context.verify_mode = ssl.CERT_REQUIRED
+    tls_context.check_hostname = True
+    tls_context.load_default_certs()
+
+    try:
+        async with aiomqtt.Client(
+            hostname=os.environ['SERVIDOR'],
+            port=int(os.environ['PUERTO_MQTTS']),    
+            tls_context=tls_context
+        ) as client:
+            await client.publish(topico, payload=str(payload))
+            logging.info(f"Éxito: Publicado '{payload}' en el tópico '{topico}'")
+            return True
+    except Exception as e:
+        logging.error(f"Error al conectar o publicar en MQTT: {e}")
+        return False
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("se conectó: " + str(update.message.from_user.id))
@@ -19,13 +46,23 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         apellido=update.message.from_user.last_name
     else:
         apellido=""
-    kb = [["temperatura"],["humedad"],["gráfico temperatura"],["gráfico humedad"]]
-    await context.bot.send_message(update.message.chat.id, text="Bienvenido al Bot "+ nombre + " " + apellido,reply_markup=ReplyKeyboardMarkup(kb))
+      kb = [
+        ["temperatura","humedad"],
+        ["gráfico temperatura","gráfico humedad"],
+        ["modo auto","modo manual"],
+        ["rele ON","rele OFF"],
+        ["destello"]
+    ]
+    await context.bot.send_message(
+        update.message.chat.id,
+        text="Bienvenido al Bot "+ nombre + " " + apellido,
+        reply_markup=ReplyKeyboardMarkup(kb)
+    )
 
 async def acercade(update: Update, context):
     await context.bot.send_message(update.message.chat.id, text="Este bot fue creado para el curso de IoT FIO")
 
-async def kill(update: Update, context):
+async def baile(update: Update, context):
     logging.info(context.args)
     if context.args and context.args[0] == '@baile':
         await context.bot.send_animation(update.message.chat.id, "CgACAgQAAxkBAAMHahiDeEYT2bwwLaOI9QVooA-adRcAAs0GAAK6K4RSN3xbqs1Aooo7BA")
@@ -95,9 +132,15 @@ def main():
     application = Application.builder().token(token).build()
     application.add_handler(CommandHandler('start', start))
     application.add_handler(CommandHandler('acercade', acercade))
-    application.add_handler(CommandHandler('kill', kill))
+    application.add_handler(CommandHandler('baile', baile))
+    application.add_handler(CommandHandler('setpoint', setpoint))
+
     application.add_handler(MessageHandler(filters.Regex("^(temperatura|humedad)$"), medicion))
     application.add_handler(MessageHandler(filters.Regex("^(gráfico temperatura|gráfico humedad)$"), graficos))
+    application.add_handler(MessageHandler(filters.Regex("^(modo auto|modo manual)$"), modo))
+    application.add_handler(MessageHandler(filters.Regex("^(rele ON|rele OFF)$"), rele))
+    application.add_handler(MessageHandler(filters.Regex("^(destello)$"), destello))
+    
     application.run_polling()
 
 if __name__ == '__main__':
