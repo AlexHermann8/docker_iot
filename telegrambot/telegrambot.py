@@ -46,13 +46,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         apellido=update.message.from_user.last_name
     else:
         apellido=""
-      kb = [
-        ["temperatura","humedad"],
-        ["gráfico temperatura","gráfico humedad"],
-        ["modo auto","modo manual"],
-        ["rele ON","rele OFF"],
-        ["destello"]
-    ]
+        kb = [
+            ["temperatura","humedad"],
+            ["gráfico temperatura","gráfico humedad"],
+            ["modo auto","modo manual"],
+            ["rele ON","rele OFF"],
+            ["destello"]
+        ]
     await context.bot.send_message(
         update.message.chat.id,
         text="Bienvenido al Bot "+ nombre + " " + apellido,
@@ -127,6 +127,18 @@ async def graficos(update: Update, context):
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=buffer)
         buffer.close()
     conn.close()
+
+async def setpoint(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not context.args:
+        await update.message.reply_text("Falta el valor de setpoint. Ejemplo: /setpoint 24.5")
+        return
+    valor = context.args[0]
+    topico = f"{ID_DISPOSITIVO}/setpoint"
+    await update.message.reply_text(f"Enviando setpoint: {valor}°C...")
+    if await publicar_mqtt(topico, valor):
+        await update.message.reply_text(f"Setpoint enviado: {valor}°C")
+    else:
+        await update.message.reply_text("Error al publicar en MQTT.")
 
 def main():
     application = Application.builder().token(token).build()
