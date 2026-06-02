@@ -140,6 +140,20 @@ async def setpoint(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("Error al publicar en MQTT.")
 
+async def modo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    texto_recibido = update.message.text
+    
+    # "Modo Auto" -> "1", "Modo Manual" -> "0"
+    valor = "1" if texto_recibido == "modo auto" else "0"
+    topico = f"{ID_DISPOSITIVO}/modo"
+
+    await update.message.reply_text(f"Cambiando a {texto_recibido}...")
+    if await publicar_mqtt(topico, valor):
+        await update.message.reply_text(f"Termostato configurado en {texto_recibido}.")
+    else:
+        await update.message.reply_text("Error al publicar en MQTT.")
+
 def main():
     application = Application.builder().token(token).build()
     application.add_handler(CommandHandler('start', start))
