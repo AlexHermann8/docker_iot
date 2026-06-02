@@ -35,7 +35,6 @@ async def publicar_mqtt(topico, payload):
         logging.error(f"Error al conectar o publicar en MQTT: {e}")
         return False
 
-
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logging.info("se conectó: " + str(update.message.from_user.id))
     if update.message.from_user.first_name:
