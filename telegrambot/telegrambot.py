@@ -46,12 +46,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         apellido=update.message.from_user.last_name
     else:
         apellido=""
-        kb = [
-            ["temperatura","humedad"],
-            ["gráfico temperatura","gráfico humedad"],
-            ["modo auto","modo manual"],
-            ["rele ON","rele OFF"],
-            ["destello"]
+    kb = [
+        ["temperatura","humedad"],
+        ["gráfico temperatura","gráfico humedad"],
+        ["modo auto","modo manual"],
+        ["rele ON","rele OFF"],
+        ["destello"]
         ]
     await context.bot.send_message(
         update.message.chat.id,
