@@ -141,9 +141,8 @@ async def setpoint(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text("Error al publicar en MQTT.")
 
 async def modo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     texto_recibido = update.message.text
-    
+
     # "Modo Auto" -> "1", "Modo Manual" -> "0"
     valor = "1" if texto_recibido == "modo auto" else "0"
     topico = f"{ID_DISPOSITIVO}/modo"
@@ -151,6 +150,28 @@ async def modo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(f"Cambiando a {texto_recibido}...")
     if await publicar_mqtt(topico, valor):
         await update.message.reply_text(f"Termostato configurado en {texto_recibido}.")
+    else:
+        await update.message.reply_text("Error al publicar en MQTT.")
+
+async def rele(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    texto_recibido = update.message.text
+
+    # "Relé ON" -> "0" (Encender), "Relé OFF" -> "1" (Apagar)
+    valor = "0" if texto_recibido == "rele ON" else "1"
+    topico = f"{ID_DISPOSITIVO}/rele"
+
+    await update.message.reply_text(f"Enviando orden: {texto_recibido}...")
+    if await publicar_mqtt(topico, valor):
+        await update.message.reply_text(f"Comando {texto_recibido} enviado.\n*(Solo se aplica si está en Modo Manual)*")
+    else:
+        await update.message.reply_text("Error al publicar en MQTT.")
+
+async def destello(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    topico = f"{ID_DISPOSITIVO}/destello"
+
+    await update.message.reply_text("Solicitando destello a la Pico...")
+    if await publicar_mqtt(topico, "destello"):
+        await update.message.reply_text("Comando Destello enviado!")
     else:
         await update.message.reply_text("Error al publicar en MQTT.")
 
