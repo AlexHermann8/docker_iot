@@ -3,54 +3,82 @@
 <div class="row">
   <div class="col-md-7 mx-auto">
     <div class="card card-body">
-      <form action="{{url_for('add_contact')}}" method="POST">
-        <legend>Cargar contacto</legend>
+      <form action="{{url_for('enviar_mqtt')}}" method="POST">
+        <legend>Control Termostato (MQTT)</legend>
+        
         <div class="form-group">
-          <label class="col-form-label mt-4" for="inputDefault">Nombre completo</label>
-          <input type="text" class="form-control" id="inputDefault" data-ddg-inputtype="unknown" name="nombre">
+          <label class="col-form-label mt-4" for="macNode">Nodo Destino (MAC)</label>
+          <select class="form-control" id="macNode" name="mac_node">
+            <option value="1324">Nodo Prueba (ID: 1324)</option>
+            <option value="a1b2c3d4e5f6">Pico de Laboratorio</option>
+          </select>
+          <div class="input-group mt-2">
+            <input type="text" id="newMac" class="form-control" placeholder="Agregar MAC manualmente">
+            <button class="btn btn-secondary" type="button" onclick="agregarMac()">Anadir MAC</button>
+          </div>
         </div>
+
         <div class="form-group">
-          <label class="col-form-label mt-4" for="tel">Teléfono</label>
-          <input type="tel" class="form-control" id="tel" data-ddg-inputtype="unknown" name="tel">
+          <label class="col-form-label mt-4" for="setpointVal">Valor del Setpoint</label>
+          <input type="number" step="0.1" class="form-control" id="setpointVal" name="setpoint_val" placeholder="Ej: 24.5">
         </div>
-        <div class="form-group">
-          <label for="email" class="form-label mt-4">Email</label>
-          <input type="email" name="email" class="form-control" id="email" aria-describedby="emailHelp"
-            data-ddg-inputtype="identities.emailAddress" data-ddg-autofill="true">
-          <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+
+        <div class="row mt-4">
+          <div class="col-md-6">
+            <button type="submit" name="accion" value="setpoint" class="btn btn-primary w-100">Enviar Setpoint</button>
+          </div>
+          <div class="col-md-6 mt-3 mt-md-0">
+            <button type="submit" name="accion" value="destello" class="btn btn-warning w-100">Enviar Destello</button>
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-4">guardar</button>
+
       </form>
     </div>
   </div>
 </div>
-<div class="row pt-5 ">
-  <div class="col-md-7 mx-auto">
-    <table class="table table-hover table-default">
-      <thead>
-        <tr>
-          <th scope="col">ID</th>
-          <th scope="col">Nombre completo</th>
-          <th scope="col">Teléfono</th>
-          <th scope="col">Email</th>
-          <th scope="col">acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for contacto in contactos %}
-        <tr>
-          <td>{{contacto.0}}</td>
-          <td>{{contacto.1}}</td>
-          <td>{{contacto.2}}</td>
-          <td>{{contacto.3}}</td>
-          <td>
-            <a href="{{url_for('conseguir_contacto',id=contacto.0)}}" class="btn btn-secondary">editar</a>
-            <a href="{{url_for('borrar_contacto',id=contacto.0)}}" class="btn btn-danger btn-borrar">borrar</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const select = document.getElementById('macNode');
+    const savedMacs = JSON.parse(sessionStorage.getItem('customMacs')) || [];
+    
+    savedMacs.forEach(mac => {
+        const option = document.createElement('option');
+        option.value = mac;
+        option.text = mac + " (Agregada)";
+        select.appendChild(option);
+    });
+
+    const lastSelected = sessionStorage.getItem('lastSelectedMac');
+    if (lastSelected) {
+        select.value = lastSelected;
+    }
+
+    select.addEventListener('change', (e) => {
+        sessionStorage.setItem('lastSelectedMac', e.target.value);
+    });
+});
+
+function agregarMac() {
+    const input = document.getElementById('newMac');
+    const select = document.getElementById('macNode');
+    const nuevaMac = input.value.trim();
+
+    if(nuevaMac !== "") {
+        const option = document.createElement('option');
+        option.value = nuevaMac;
+        option.text = nuevaMac + " (Agregada)";
+        option.selected = true;
+        select.appendChild(option);
+        input.value = ""; 
+
+        const savedMacs = JSON.parse(sessionStorage.getItem('customMacs')) || [];
+        if (!savedMacs.includes(nuevaMac)) {
+            savedMacs.push(nuevaMac);
+            sessionStorage.setItem('customMacs', JSON.stringify(savedMacs));
+        }
+        sessionStorage.setItem('lastSelectedMac', nuevaMac);
+    }
+}
+</script>
 {% endblock %}
